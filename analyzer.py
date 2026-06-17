@@ -1,5 +1,6 @@
 from collections import Counter
 from llm_manager import get_llm_connector
+import re
 
 SKILL_ALIASES = {
     "react.js": "react",
@@ -35,6 +36,18 @@ def normalize_skills(skill: str) -> str:
     if clean in SKILL_ALIASES:
         return SKILL_ALIASES[clean]
     
+    clean = re.sub(r'\s+(advanced|basic|intermediate|expert)$', '', clean)
+    clean = re.sub(r'^(advanced|basic|intermediate|expert)\s+', '', clean)
+    
+    if 'sql' in clean and 'nosql' not in clean:
+        return 'sql'
+    
+    if 'c#' in clean:
+        return 'c#'
+    
+    if 'react' in clean and 'native' not in clean:
+        return 'react'
+
     return clean
 
 def calculate_skill_gap(cv_text: str, jobs: list, provider: str = "gemini"):
